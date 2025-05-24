@@ -1,0 +1,56 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Unit test / Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
+
+# Environments
+env/
+venv/
+.venv/
+ENV/
+Pipfile.lock
+poetry.lock
+
+# Environment variables
+.env
+.env.*
+
+# VSCode and editor config
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+
+# MacOS
+.DS_Store
+
+# Docker
+*.pid
+*.seed
+docker-compose.override.yml
+
+# GitHub Actions
+.github/workflows/__pycache__/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Other
+*.db
+*.sqlite3
+.cache/
