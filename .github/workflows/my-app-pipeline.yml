@@ -69,15 +69,15 @@ jobs:
 
       - name: Deploy to dev
         run: |
-          docker stop $NAME_REDIS
-          docker rm $NAME_REDIS
-          docker run --name $NAME_REDIS -p "$PORT_REDIS:6379" -d redis:alpine
-          $redisIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $NAME_REDIS)[1]
+          docker stop $ENV:NAME_REDIS
+          docker rm $ENV:NAME_REDIS
+          docker run --name $ENV:NAME_REDIS -p "${ENV:PORT_REDIS}:6379" -d redis:alpine
+          $redisIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $ENV:NAME_REDIS)[1]
           $sanitized_ver="${{ needs.build.outputs.sanitized_ver }}"
-          docker pull "${IMAGE_NAME}:$sanitized_ver"
-          docker stop $NAME_APP
-          docker rm $NAME_APP
-          docker run --name $NAME_APP --add-host "redis:$redisIP" -p "$PORT_APP:5000" -d "${IMAGE_NAME}:$sanitized_ver"
+          docker pull "${ENV:IMAGE_NAME}:$sanitized_ver"
+          docker stop $ENV:NAME_APP
+          docker rm $ENV:NAME_APP
+          docker run --name $ENV:NAME_APP --add-host "redis:$redisIP" -p "${ENV:PORT_APP}:5000" -d "${ENV:IMAGE_NAME}:$sanitized_ver"
         env:
           PORT_APP:   ${{ vars.PORT_APP }}
           PORT_REDIS: ${{ vars.PORT_REDIS }}
@@ -138,15 +138,15 @@ jobs:
 
       - name: Deploy to prod
         run: |
-          docker stop $NAME_REDIS
-          docker rm $NAME_REDIS
-          docker run --name $NAME_REDIS -p "$PORT_REDIS:6379" -d redis:alpine
-          $redisIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $NAME_REDIS)[1]
+          docker stop $ENV:NAME_REDIS
+          docker rm $ENV:NAME_REDIS
+          docker run --name $ENV:NAME_REDIS -p "${ENV:PORT_REDIS}:6379" -d redis:alpine
+          $redisIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $ENV:NAME_REDIS)[1]
           $sanitized_ver="${{ needs.build.outputs.sanitized_ver }}"
-          docker pull "${IMAGE_NAME}:$sanitized_ver"
-          docker stop $NAME_APP
-          docker rm $NAME_APP
-          docker run --name $NAME_APP --add-host "redis:$redisIP" -p "$PORT_APP:5000" -d "${IMAGE_NAME}:$sanitized_ver"
+          docker pull "${ENV:IMAGE_NAME}:$sanitized_ver"
+          docker stop $ENV:NAME_APP
+          docker rm $ENV:NAME_APP
+          docker run --name $ENV:NAME_APP --add-host "redis:$redisIP" -p "${ENV:PORT_APP}:5000" -d "${ENV:IMAGE_NAME}:$sanitized_ver"
         env:
           PORT_APP:   ${{ vars.PORT_APP }}
           PORT_REDIS: ${{ vars.PORT_REDIS }}
