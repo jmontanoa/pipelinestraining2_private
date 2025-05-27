@@ -93,7 +93,7 @@ jobs:
             -f environment=Develop \
             -f auto_merge=false \
             -f required_contexts='[]' \
-            -f description="Deploying $IMAGE_NAME:$SEM_VERSION to Develop"
+            -f description="Deploying ${ENV:IMAGE_NAME}:${ENV:SEM_VERSION} to Develop"
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -162,7 +162,7 @@ jobs:
             -f environment=Production \
             -f auto_merge=false \
             -f required_contexts='[]' \
-            -f description="Deploying $IMAGE_NAME:$SEM_VERSION to Production"
+            -f description="Deploying ${ENV:IMAGE_NAME}:${ENV:SEM_VERSION} to Production"
 
       - name: Checkout code
         uses: actions/checkout@v3
