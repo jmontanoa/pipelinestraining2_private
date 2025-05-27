@@ -97,11 +97,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh api repos/${{ github.repository }}/deployments `
-            -f "ref=${{ github.sha }}" `
-            -f "environment=Develop" `
-            -f "auto_merge=false" `
-            -f "required_contexts=[]" `
-            -f "description=Deploying ${ENV:IMAGE_NAME}:${ENV:SEM_VERSION} to Develop"
+            -f ref=${{ github.sha }} `
+            -f environment=Develop `
+            -F auto_merge=false `
+            -F required_contexts='[]' `
+            -f description="Deploying ${ENV:IMAGE_NAME}:${ENV:SEM_VERSION} to Develop"
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -170,11 +170,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh api repos/${{ github.repository }}/deployments `
-            -f "ref=${{ github.sha }}" `
-            -f "environment=Production" `
-            -f "auto_merge=false" `
-            -f "required_contexts=[]" `
-            -f "description=Deploying ${ENV:IMAGE_NAME}:${ENV:SEM_VERSION} to Production"
+            -f ref=${{ github.sha }} `
+            -f environment=Production `
+            -F auto_merge=false `
+            -F required_contexts='[]' `
+            -f description="Deploying ${ENV:IMAGE_NAME}:${ENV:SEM_VERSION} to Production"
 
       - name: Checkout code
         uses: actions/checkout@v3
