@@ -37,6 +37,8 @@ jobs:
   Build:
     runs-on: ubuntu-latest
     needs: Static-codecheck
+    outputs:
+      sanitized_ver: ${{ steps.build.outputs.sanitized_ver }}
 
     steps:
       - name: Checkout code
@@ -46,10 +48,12 @@ jobs:
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Build and push Docker image
+        id: build
         run: |
           sanitized_ver="${SEM_VERSION//\//-}"
           docker build -t $IMAGE_NAME:$sanitized_ver --build-arg PYTHON_VERSION=$PYTHON_VERSION .
           docker push $IMAGE_NAME:$sanitized_ver
+          echo "sanitized_ver=$sanitized_ver" >> $GITHUB_OUTPUT
 
   ## 🚀 3. Deploy to Dev Environment and run Integration tests
   deploy-dev:
@@ -69,7 +73,7 @@ jobs:
           docker rm $NAME_REDIS
           docker run --name $NAME_REDIS -p "$PORT_REDIS:6379" -d redis:alpine
           redisIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $NAME_REDIS)[1]
-          sanitized_ver="${SEM_VERSION//\//-}"
+          $sanitized_ver="${{ needs.build.outputs.sanitized_ver }}"
           docker pull $IMAGE_NAME:$sanitized_ver
           docker stop $NAME_APP
           docker rm $NAME_APP
@@ -121,7 +125,9 @@ jobs:
   ## 🚀 4. Deploy to Prod Environment and run Integration tests
   deploy-prod:
     runs-on: self-hosted
-    needs: deploy-dev
+    needs: 
+      - Build
+      - deploy-dev
     environment:
       name: Production
       url: "http://localhost:${{ vars.PORT_APP }}"
@@ -136,7 +142,7 @@ jobs:
           docker rm $NAME_REDIS
           docker run --name $NAME_REDIS -p "$PORT_REDIS:6379" -d redis:alpine
           redisIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $NAME_REDIS)[1]
-          sanitized_ver="${SEM_VERSION//\//-}"
+          $sanitized_ver="${{ needs.build.outputs.sanitized_ver }}"
           docker pull $IMAGE_NAME:$sanitized_ver
           docker stop $NAME_APP
           docker rm $NAME_APP
