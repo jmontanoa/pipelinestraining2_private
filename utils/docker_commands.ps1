@@ -1,5 +1,5 @@
 # Build image
-docker build -t restapp:1.0.0 .
+docker build . -t restapp:1.0.0 --build-arg PYTHON_VERSION=3.13
 
 # Run Unit Tests
 docker stop "restapp"

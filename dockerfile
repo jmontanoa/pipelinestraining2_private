@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1
-FROM python:3.13-alpine
+ARG PYTHON_VERSION=3.13
+FROM python:${PYTHON_VERSION}-alpine
 WORKDIR /code
 ENV FLASK_APP=restApp/__init__.py
 ENV FLASK_RUN_HOST=0.0.0.0

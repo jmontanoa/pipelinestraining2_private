@@ -9,8 +9,8 @@ on:
   workflow_dispatch:
 
 env: 
-  IMAGE_NAME:  jpmontano/restApp
-  SEM_VERSION: "${{ github.ref_name }}-1.0.0+${{ github.run_number }}"
+  IMAGE_NAME:  jpmontano/restapp
+  SEM_VERSION: "${{ github.ref_name }}-1.0.0_${{ github.run_number }}"
   PYTHON_VERSION: 3.13
 
 jobs:
@@ -48,12 +48,13 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t $IMAGE_NAME:$SEM_VERSION .
-          docker push $IMAGE_NAME:$SEM_VERSION
+          sanitized_ver = "${SEM_VERSION//\//-}"
+          docker build -t $IMAGE_NAME:$sanitized_ver --build-arg PYTHON_VERSION=$PYTHON_VERSION .
+          docker push $IMAGE_NAME:$sanitized_ver
 
   ## 🚀 3. Deploy to Dev Environment and run Integration tests
   deploy-dev:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: Build
     environment:
       name: Develop
@@ -68,11 +69,12 @@ jobs:
           docker stop $NAME_REDIS
           docker rm $NAME_REDIS
           docker run --name $NAME_REDIS -p "$PORT_REDIS:6379" -d redis:alpine
-          redisIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $NAME_REDIS)
-          docker pull $IMAGE_NAME:$SEM_VERSION
-          docker stop $NAME_APP || true
-          docker rm $NAME_APP || true
-          docker run --name $NAME_APP --add-host "redis:$redisIP" -p "$PORT_REDIS:5000" -d $IMAGE_NAME:$SEM_VERSION
+          redisIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $NAME_REDIS)[1]
+          sanitized_ver = "${SEM_VERSION//\//-}"
+          docker pull $IMAGE_NAME:$sanitized_ver
+          docker stop $NAME_APP
+          docker rm $NAME_APP
+          docker run --name $NAME_APP --add-host "redis:$redisIP" -p "$PORT_APP:5000" -d $IMAGE_NAME:$sanitized_ver
         env:
           PORT_APP:   ${{ vars.PORT_APP }}
           PORT_REDIS: ${{ vars.PORT_REDIS }}
@@ -119,7 +121,7 @@ jobs:
 
   ## 🚀 4. Deploy to Prod Environment and run Integration tests
   deploy-prod:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: deploy-dev
     environment:
       name: Production
@@ -134,11 +136,12 @@ jobs:
           docker stop $NAME_REDIS
           docker rm $NAME_REDIS
           docker run --name $NAME_REDIS -p "$PORT_REDIS:6379" -d redis:alpine
-          redisIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $NAME_REDIS)
-          docker pull $IMAGE_NAME:$SEM_VERSION
-          docker stop $NAME_APP || true
-          docker rm $NAME_APP || true
-          docker run --name $NAME_APP --add-host "redis:$redisIP" -p "$PORT_REDIS:5000" -d $IMAGE_NAME:$SEM_VERSION
+          redisIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $NAME_REDIS)[1]
+          sanitized_ver = "${SEM_VERSION//\//-}"
+          docker pull $IMAGE_NAME:$sanitized_ver
+          docker stop $NAME_APP
+          docker rm $NAME_APP
+          docker run --name $NAME_APP --add-host "redis:$redisIP" -p "$PORT_APP:5000" -d $IMAGE_NAME:$sanitized_ver
         env:
           PORT_APP:   ${{ vars.PORT_APP }}
           PORT_REDIS: ${{ vars.PORT_REDIS }}
