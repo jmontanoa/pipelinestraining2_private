@@ -99,8 +99,8 @@ jobs:
           gh api repos/${{ github.repository }}/deployments `
             -f ref=${{ github.sha }} `
             -f environment=Develop `
-            -f auto_merge=false `
-            -f required_contexts='[]' `
+            -f auto_merge=$false `
+            -f required_contexts=$null `
             -f description="Deploying ${ENV:IMAGE_NAME}:${ENV:SEM_VERSION} to Develop"
 
       - name: Checkout code
@@ -172,8 +172,8 @@ jobs:
           gh api repos/${{ github.repository }}/deployments `
             -f ref=${{ github.sha }} `
             -f environment=Production `
-            -f auto_merge=false `
-            -f required_contexts='[]' `
+            -f auto_merge=$false `
+            -f required_contexts=$null `
             -f description="Deploying ${ENV:IMAGE_NAME}:${ENV:SEM_VERSION} to Production"
 
       - name: Checkout code
