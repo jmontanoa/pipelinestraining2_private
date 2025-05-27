@@ -72,7 +72,7 @@ jobs:
           docker stop $ENV:NAME_REDIS
           docker rm $ENV:NAME_REDIS
           docker run --name $ENV:NAME_REDIS -p "${ENV:PORT_REDIS}:6379" -d redis:alpine
-          $redisIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $ENV:NAME_REDIS)[1]
+          $redisIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $ENV:NAME_REDIS)
           $sanitized_ver="${{ needs.build.outputs.sanitized_ver }}"
           docker pull "${ENV:IMAGE_NAME}:$sanitized_ver"
           docker stop $ENV:NAME_APP
@@ -141,7 +141,7 @@ jobs:
           docker stop $ENV:NAME_REDIS
           docker rm $ENV:NAME_REDIS
           docker run --name $ENV:NAME_REDIS -p "${ENV:PORT_REDIS}:6379" -d redis:alpine
-          $redisIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $ENV:NAME_REDIS)[1]
+          $redisIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $ENV:NAME_REDIS)
           $sanitized_ver="${{ needs.build.outputs.sanitized_ver }}"
           docker pull "${ENV:IMAGE_NAME}:$sanitized_ver"
           docker stop $ENV:NAME_APP
