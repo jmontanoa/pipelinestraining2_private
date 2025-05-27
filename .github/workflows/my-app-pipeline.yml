@@ -74,10 +74,10 @@ jobs:
           docker run --name $NAME_REDIS -p "$PORT_REDIS:6379" -d redis:alpine
           redisIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $NAME_REDIS)[1]
           $sanitized_ver="${{ needs.build.outputs.sanitized_ver }}"
-          docker pull $IMAGE_NAME:$sanitized_ver
+          docker pull "${IMAGE_NAME}:$sanitized_ver"
           docker stop $NAME_APP
           docker rm $NAME_APP
-          docker run --name $NAME_APP --add-host "redis:$redisIP" -p "$PORT_APP:5000" -d $IMAGE_NAME:$sanitized_ver
+          docker run --name $NAME_APP --add-host "redis:$redisIP" -p "$PORT_APP:5000" -d "${IMAGE_NAME}:$sanitized_ver"
         env:
           PORT_APP:   ${{ vars.PORT_APP }}
           PORT_REDIS: ${{ vars.PORT_REDIS }}
@@ -143,10 +143,10 @@ jobs:
           docker run --name $NAME_REDIS -p "$PORT_REDIS:6379" -d redis:alpine
           redisIP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $NAME_REDIS)[1]
           $sanitized_ver="${{ needs.build.outputs.sanitized_ver }}"
-          docker pull $IMAGE_NAME:$sanitized_ver
+          docker pull "${IMAGE_NAME}:$sanitized_ver"
           docker stop $NAME_APP
           docker rm $NAME_APP
-          docker run --name $NAME_APP --add-host "redis:$redisIP" -p "$PORT_APP:5000" -d $IMAGE_NAME:$sanitized_ver
+          docker run --name $NAME_APP --add-host "redis:$redisIP" -p "$PORT_APP:5000" -d "${IMAGE_NAME}:$sanitized_ver"
         env:
           PORT_APP:   ${{ vars.PORT_APP }}
           PORT_REDIS: ${{ vars.PORT_REDIS }}
