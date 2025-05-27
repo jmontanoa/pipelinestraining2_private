@@ -12,6 +12,10 @@ env:
   SEM_VERSION: "${{ github.ref_name }}-1.0.0_${{ github.run_number }}"
   PYTHON_VERSION: 3.13
 
+permissions:
+  contents: read          # keep this if you need to read/write code
+  deployments: write      # <<< this gives your token permission to create deployments
+
 jobs:
   ## 🔧 1. Run Unit Tests, code inspections and code coverage
   Static-codecheck:
@@ -120,10 +124,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          deployment_id=$(gh api repos/${{ github.repository }}/deployments --jq '.[0].id')
-          gh api repos/${{ github.repository }}/deployments/$deployment_id/statuses \
-            -f state=success \
-            -f environment=Develop \
+          $deployment_id=$(gh api repos/${{ github.repository }}/deployments --jq '.[0].id')
+          gh api repos/${{ github.repository }}/deployments/$deployment_id/statuses `
+            -f state=success `
+            -f environment=Develop `
             -f description="Deployment completed successfully"
 
   ## 🚀 4. Deploy to Prod Environment and run Integration tests
@@ -193,8 +197,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          deployment_id=$(gh api repos/${{ github.repository }}/deployments --jq '.[0].id')
-          gh api repos/${{ github.repository }}/deployments/$deployment_id/statuses \
-            -f state=success \
-            -f environment=Production \
+          $deployment_id=$(gh api repos/${{ github.repository }}/deployments --jq '.[0].id')
+          gh api repos/${{ github.repository }}/deployments/$deployment_id/statuses `
+            -f state=success `
+            -f environment=Production `
             -f description="Deployment completed successfully"
