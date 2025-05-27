@@ -84,10 +84,9 @@ jobs:
           NAME_REDIS: "redis-dev"
           NAME_APP:   "restapp-dev"
 
-      - name: Setup GitHub CLI
-        uses: actions4gh/setup-gh@v1
-        with:
-          gh-version: 'latest'
+      - name: Install GitHub CLI (choco)
+        shell: pwsh
+        run: choco install gh --version 2.73.0 -y
           
       - name: Create deployment event in GitHub
         env:
@@ -158,10 +157,9 @@ jobs:
           NAME_REDIS: "redis-prod"
           NAME_APP:   "restapp-prod"
 
-      - name: Setup GitHub CLI
-        uses: actions4gh/setup-gh@v1
-        with:
-          gh-version: 'latest'
+      - name: Install GitHub CLI (choco)
+        shell: pwsh
+        run: choco install gh --version 2.73.0 -y
 
       - name: Create deployment event in GitHub
         env:
