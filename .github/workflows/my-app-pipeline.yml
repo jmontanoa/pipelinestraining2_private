@@ -84,6 +84,11 @@ jobs:
           NAME_REDIS: "redis-dev"
           NAME_APP:   "restapp-dev"
 
+      - name: Setup GitHub CLI
+        uses: actions4gh/setup-gh@v1
+        with:
+          gh-version: 'latest'
+          
       - name: Create deployment event in GitHub
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -152,6 +157,11 @@ jobs:
           PORT_REDIS: ${{ vars.PORT_REDIS }}
           NAME_REDIS: "redis-prod"
           NAME_APP:   "restapp-prod"
+
+      - name: Setup GitHub CLI
+        uses: actions4gh/setup-gh@v1
+        with:
+          gh-version: 'latest'
 
       - name: Create deployment event in GitHub
         env:
