@@ -1,10 +1,10 @@
 name: CI
 
 on:
-  # push:
-  #   branches: 
-  #     - develop
-  #     - main
+  push:
+    branches: 
+      - develop
+      - main
   workflow_dispatch:
 
 env: 
@@ -88,21 +88,6 @@ jobs:
           NAME_REDIS: "redis-dev"
           NAME_APP:   "restapp-dev"
 
-      - name: Install GitHub CLI (choco)
-        shell: pwsh
-        run: choco install gh --version 2.73.0 -y
-          
-      - name: Create deployment event in GitHub
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh api repos/${{ github.repository }}/deployments `
-            -f ref=${{ github.sha }} `
-            -f environment=Develop `
-            -F auto_merge=false `
-            -F required_contexts=null `
-            -f description="Deploying ${ENV:IMAGE_NAME}:${ENV:SEM_VERSION} to Develop"
-
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -119,16 +104,6 @@ jobs:
         run: pytest test/integration -v
         env:
           API_BASE_URL: "http://localhost:${{ vars.PORT_APP }}"
-
-      - name: Mark deployment as successful
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          $deployment_id=$(gh api repos/${{ github.repository }}/deployments --jq '.[0].id')
-          gh api repos/${{ github.repository }}/deployments/$deployment_id/statuses `
-            -f state=success `
-            -f environment=Develop `
-            -f description="Deployment completed successfully"
 
   ## 🚀 4. Deploy to Prod Environment and run Integration tests
   deploy-prod:
@@ -161,21 +136,6 @@ jobs:
           NAME_REDIS: "redis-prod"
           NAME_APP:   "restapp-prod"
 
-      - name: Install GitHub CLI (choco)
-        shell: pwsh
-        run: choco install gh --version 2.73.0 -y
-
-      - name: Create deployment event in GitHub
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh api repos/${{ github.repository }}/deployments `
-            -f ref=${{ github.sha }} `
-            -f environment=Production `
-            -F auto_merge=false `
-            -F required_contexts=null `
-            -f description="Deploying ${ENV:IMAGE_NAME}:${ENV:SEM_VERSION} to Production"
-
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -192,13 +152,3 @@ jobs:
         run: pytest test/integration -v
         env:
           API_BASE_URL: "http://localhost:${{ vars.PORT_APP }}"
-
-      - name: Mark deployment as successful
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          $deployment_id=$(gh api repos/${{ github.repository }}/deployments --jq '.[0].id')
-          gh api repos/${{ github.repository }}/deployments/$deployment_id/statuses `
-            -f state=success `
-            -f environment=Production `
-            -f description="Deployment completed successfully"
