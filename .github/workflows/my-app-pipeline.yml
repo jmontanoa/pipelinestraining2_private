@@ -59,7 +59,7 @@ jobs:
       - name: Run GitVersion
         id: gitversion
         run: |
-          gitversion /overrideconfig next-version=$NEXT_VERSION /output json /output file
+          $GITVERSION_PATH/gitversion /overrideconfig next-version=$NEXT_VERSION /output json /output file
           echo "SemVer=$(jq -r .SemVer GitVersion.json)" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker image
