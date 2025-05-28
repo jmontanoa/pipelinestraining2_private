@@ -61,7 +61,7 @@ jobs:
         run: |
           # output JSON to stdout and capture variables
           gitversion /overrideconfig next-version=$NEXT_VERSION /output json /output file
-          echo "##[set-output name=SemVer;]$(jq -r .SemVer GitVersion.json)"
+          echo "SemVer=$(jq -r .SemVer GitVersion.json)" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker image
         id: build
