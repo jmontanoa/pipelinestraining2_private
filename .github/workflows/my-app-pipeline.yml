@@ -47,30 +47,32 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Setup GitVersion
-        uses: gittools/actions/gitversion/setup@v3.0
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v3.2.1
         with:
-          versionSpec: '5.x'
+          versionSpec: '6.0.0'
 
-      - name: Run GitVersion
-        id: gitversion
-        run: |
-          $GITVERSION_PATH/gitversion /overrideconfig next-version=$NEXT_VERSION /output json /output file
-          echo "SemVer=$(jq -r .SemVer GitVersion.json)" >> $GITHUB_OUTPUT
+      - name: Determine Version
+        id: version_step # step id used as a reference for output values
+        uses: gittools/actions/gitversion/execute@v3.2.1
+        with:
+          overrideConfig: ${{ env.NEXT_VERSION }}
 
       - name: Build and push Docker image
         id: build
         run: |
-          sanitized_ver="${SEM_VERSION//+/-}"
+          sanitized_ver="${SEM_VERSION//+/c}"
           docker build -t $IMAGE_NAME:$sanitized_ver --build-arg PYTHON_VERSION=$PYTHON_VERSION .
           docker push $IMAGE_NAME:$sanitized_ver
           echo "sanitized_ver=$sanitized_ver" >> $GITHUB_OUTPUT
         env:
-          SEM_VERSION: ${{ steps.gitversion.outputs.SemVer }}
+          SEM_VERSION: ${{ steps.version_step.outputs.fullSemVer }}
         
 
   ## 🚀 3. Deploy to Dev Environment and run Integration tests
