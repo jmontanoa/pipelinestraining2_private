@@ -62,7 +62,8 @@ jobs:
         id: version_step # step id used as a reference for output values
         uses: gittools/actions/gitversion/execute@v3.2.1
         with:
-          overrideConfig: ${{ env.NEXT_VERSION }}
+          overrideConfig:  |
+            next-version=${{ env.NEXT_VERSION }}
 
       - name: Build and push Docker image
         id: build
