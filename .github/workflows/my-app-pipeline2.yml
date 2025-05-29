@@ -50,21 +50,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Restore Docker image cache
-        id: cache-image
-        uses: actions/cache@v3
-        with:
-          path: docker-cache
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/dockerfile') }}
-          restore-keys: |
-            ${{ runner.os }}-docker-
-
-      - name: Load cached image if any cache was restored
-        if: steps.cache-image.outputs.cache-hit != ''
-        run: |
-          echo "Using cache from key: ${{ steps.cache-image.outputs.cache-hit }}"
-          docker load -i docker-cache/image.tar
-
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
@@ -80,6 +65,21 @@ jobs:
           overrideConfig:  |
             next-version=${{ env.NEXT_VERSION }}
 
+      - name: Restore Docker image cache
+        id: cache-image
+        uses: actions/cache@v3
+        with:
+          path: docker-cache
+          key: ${{ runner.os }}-docker-${{ steps.version_step.outputs.SemVer }}
+          restore-keys: |
+            ${{ runner.os }}-docker-
+
+      - name: Load cached image if any cache was restored
+        if: steps.cache-image.outputs.cache-hit != ''
+        run: |
+          echo "Using cache from key: ${{ steps.cache-image.outputs.cache-hit }}"
+          docker load -i docker-cache/image.tar
+
       - name: Build and push Docker image
         id: build
         run: |
@@ -88,7 +88,7 @@ jobs:
           docker push $IMAGE_NAME:$sanitized_ver
           echo "sanitized_ver=$sanitized_ver" >> $GITHUB_OUTPUT
         env:
-          SEM_VERSION: ${{ steps.version_step.outputs.fullSemVer }}
+          SEM_VERSION: ${{ steps.version_step.outputs.FullSemVer }}
 
       - name: Save image to cache
         if: steps.cache-image.outputs.cache-hit != 'true'
