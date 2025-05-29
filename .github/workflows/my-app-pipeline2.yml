@@ -1,6 +1,10 @@
 name: CI
 
 on:
+  push:
+    branches: 
+      - develop
+      - main
   workflow_dispatch:
 
 env: 
@@ -46,6 +50,21 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Restore Docker image cache
+        id: cache-image
+        uses: actions/cache@v3
+        with:
+          path: docker-cache
+          key: ${{ runner.os }}-docker-${{ hashFiles('**/dockerfile') }}
+          restore-keys: |
+            ${{ runner.os }}-docker-
+
+      - name: Load cached image if any cache was restored
+        if: steps.cache-image.outputs.cache-hit != ''
+        run: |
+          echo "Using cache from key: ${{ steps.cache-image.outputs.cache-hit }}"
+          docker load -i docker-cache/image.tar
+
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
@@ -70,8 +89,15 @@ jobs:
           echo "sanitized_ver=$sanitized_ver" >> $GITHUB_OUTPUT
         env:
           SEM_VERSION: ${{ steps.version_step.outputs.fullSemVer }}
-        
 
+      - name: Save image to cache
+        if: steps.cache-image.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p docker-cache
+          docker save $IMAGE_NAME:$SANITIZED_VER > docker-cache/image.tar
+        env:
+          SANITIZED_VER: ${{ steps.build.outputs.sanitized_ver }}
+        
   ## 🚀 3. Deploy to Dev Environment and run Integration tests
   deploy-dev:
     runs-on: self-hosted
@@ -121,6 +147,7 @@ jobs:
   ## 🚀 4. Deploy to Prod Environment and run Integration tests
   deploy-prod:
     runs-on: self-hosted
+    if: ${{ github.ref_name == 'main' }}
     needs: 
       - Build
       - deploy-dev
