@@ -70,25 +70,33 @@ jobs:
         uses: actions/cache@v3
         with:
           path: docker-cache
-          key: ${{ runner.os }}-docker-${{ steps.version_step.outputs.SemVer }}
-          restore-keys: |
-            ${{ runner.os }}-docker-
+          key: ${{ runner.os }}-docker-${{ steps.version_step.outputs.MajorMinorPatch }}           
 
       - name: Load cached image if any cache was restored
-        if: steps.cache-image.outputs.cache-hit != ''
+        if: steps.cache-image.outputs.cache-hit == 'true'
         run: |
-          echo "Using cache from key: ${{ steps.cache-image.outputs.cache-hit }}"
+          echo "Using cache from key: ${{ steps.version_step.outputs.MajorMinorPatch }}"
           docker load -i docker-cache/image.tar
 
       - name: Build and push Docker image
         id: build
         run: |
-          sanitized_ver="${SEM_VERSION//+/c}"
-          docker build -t $IMAGE_NAME:$sanitized_ver --build-arg PYTHON_VERSION=$PYTHON_VERSION .
-          docker push $IMAGE_NAME:$sanitized_ver
+          sanitized_ver="${FULL_SEM_VERSION//+/c}"
+          if [ "$CACHE_HIT" = "true" ]; then
+            BASE_IMAGE="$IMAGE_NAME:$VERSION"
+            docker build -t $IMAGE_NAME:$sanitized_ver --build-arg BASE_IMAGE=$BASE_IMAGE --target final-base.
+            docker push $IMAGE_NAME:$sanitized_ver
+          else
+            BASE_IMAGE="python:${PYTHON_VERSION}-alpine"
+            docker build -t $IMAGE_NAME:$VERSION -t $IMAGE_NAME:$sanitized_ver --build-arg BASE_IMAGE=$BASE_IMAGE --target final-setup .
+            docker push $IMAGE_NAME:$VERSION
+            docker push $IMAGE_NAME:$sanitized_ver
+          fi
           echo "sanitized_ver=$sanitized_ver" >> $GITHUB_OUTPUT
         env:
-          SEM_VERSION: ${{ steps.version_step.outputs.FullSemVer }}
+          FULL_SEM_VERSION: ${{ steps.version_step.outputs.FullSemVer }}
+          VERSION: ${{ steps.version_step.outputs.MajorMinorPatch }}
+          CACHE_HIT: ${{ steps.cache-image.outputs.cache-hit }}
 
       - name: Save image to cache
         if: steps.cache-image.outputs.cache-hit != 'true'
