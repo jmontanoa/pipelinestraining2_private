@@ -84,7 +84,7 @@ jobs:
           sanitized_ver="${FULL_SEM_VERSION//+/c}"
           if [ "$CACHE_HIT" = "true" ]; then
             BASE_IMAGE="$IMAGE_NAME:$VERSION"
-            docker build -t $IMAGE_NAME:$sanitized_ver --build-arg BASE_IMAGE=$BASE_IMAGE --target final-base.
+            docker build -t $IMAGE_NAME:$sanitized_ver --build-arg BASE_IMAGE=$BASE_IMAGE --target final-base .
             docker push $IMAGE_NAME:$sanitized_ver
           else
             BASE_IMAGE="python:${PYTHON_VERSION}-alpine"
