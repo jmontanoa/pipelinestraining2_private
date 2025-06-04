@@ -88,6 +88,7 @@ jobs:
           fi
           sanitized_ver="${FULL_SEM_VERSION//+/c}"
           BASE_IMAGE="$IMAGE_NAME:$VERSION"
+          docker rmi $BASE_IMAGE
           docker build -t $IMAGE_NAME:$sanitized_ver --build-arg BASE_IMAGE=$BASE_IMAGE --target final .
           docker push $IMAGE_NAME:$sanitized_ver
           echo "sanitized_ver=$sanitized_ver" >> $GITHUB_OUTPUT
