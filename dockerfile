@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1
 ARG BASE_IMAGE=python:3.13-alpine
 #ARG BASE_IMAGE=restapp:1.0.0
-FROM ${BASE_IMAGE} AS common
+#FROM ${BASE_IMAGE} AS common
 
-FROM common AS image-setup
+FROM ${BASE_IMAGE} AS image-setup
 # only used when building from python base image(e.g BASE_IMAGE=python:3.13-alpine)
 WORKDIR /code
 ENV FLASK_APP=restApp/__init__.py
@@ -13,7 +13,7 @@ COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 EXPOSE 5000
 
-FROM common AS final
+FROM ${BASE_IMAGE} AS final
 # only used when building from restapp base image(e.g BASE_IMAGE=restapp:1.0.0)
 COPY . .
 CMD ["flask", "run"]
