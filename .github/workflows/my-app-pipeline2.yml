@@ -84,6 +84,7 @@ jobs:
           if [ "$CACHE_HIT" != "true" ]; then
             BASE_IMAGE="python:${PYTHON_VERSION}-alpine"
             docker build -t base:$VERSION --build-arg BASE_IMAGE=$BASE_IMAGE --target image-setup .
+            echo "Creating restapp base image locally"
           fi
           sanitized_ver="${FULL_SEM_VERSION//+/c}"
           BASE_IMAGE="base:$VERSION"
