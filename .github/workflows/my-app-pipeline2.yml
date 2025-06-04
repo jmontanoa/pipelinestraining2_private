@@ -82,8 +82,7 @@ jobs:
         id: build
         run: |
           if [ "$CACHE_HIT" != "true" ]; then
-            BASE_IMAGE="python:${PYTHON_VERSION}-alpine"
-            docker build -t base:$VERSION --build-arg BASE_IMAGE=$BASE_IMAGE --target image-setup .
+            docker build -t base:$VERSION --build-arg PYTHON_VERSION=$PYTHON_VERSION --target base .
             echo "Creating restapp base image locally"
           fi
           sanitized_ver="${FULL_SEM_VERSION//+/c}"
@@ -91,6 +90,7 @@ jobs:
           docker build -t $IMAGE_NAME:$sanitized_ver --build-arg BASE_IMAGE=$BASE_IMAGE --target final .
           docker push $IMAGE_NAME:$sanitized_ver
           echo "sanitized_ver=$sanitized_ver" >> $GITHUB_OUTPUT
+          docker images
         env:
           FULL_SEM_VERSION: ${{ steps.version_step.outputs.FullSemVer }}
           VERSION: ${{ steps.version_step.outputs.MajorMinorPatch }}
