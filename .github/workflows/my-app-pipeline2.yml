@@ -91,7 +91,7 @@ jobs:
           docker build -t $IMAGE_NAME:$sanitized_ver --build-arg BASE_IMAGE=$BASE_IMAGE --target final .
           docker push $IMAGE_NAME:$sanitized_ver
           echo "sanitized_ver=$sanitized_ver" >> $GITHUB_OUTPUT
-          docker image
+          docker images
         env:
           FULL_SEM_VERSION: ${{ steps.version_step.outputs.FullSemVer }}
           VERSION: ${{ steps.version_step.outputs.MajorMinorPatch }}
@@ -102,7 +102,7 @@ jobs:
         run: |
           mkdir -p docker-cache
           docker save $IMAGE_NAME:$VERSION > docker-cache/image.tar
-          docker image
+          docker images
         env:
           VERSION: ${{ steps.version_step.outputs.MajorMinorPatch }}
         
