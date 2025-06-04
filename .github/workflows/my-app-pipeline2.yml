@@ -77,21 +77,21 @@ jobs:
         run: |
           echo "Using cache from key: ${{ steps.version_step.outputs.MajorMinorPatch }}"
           docker load -i docker-cache/image.tar
-          docker images
 
       - name: Build and push Docker image
         id: build
         run: |
           if [ "$CACHE_HIT" != "true" ]; then
-            docker build -t base:$VERSION --build-arg PYTHON_VERSION=$PYTHON_VERSION --target base .
+            docker build -t $IMAGE_NAME:$VERSION --build-arg PYTHON_VERSION=$PYTHON_VERSION --target base .
+            docker push $IMAGE_NAME:$VERSION
             echo "Creating restapp base image locally"
           fi
           sanitized_ver="${FULL_SEM_VERSION//+/c}"
-          BASE_IMAGE="base:$VERSION"
+          BASE_IMAGE="$IMAGE_NAME:$VERSION"
           docker build -t $IMAGE_NAME:$sanitized_ver --build-arg BASE_IMAGE=$BASE_IMAGE --target final .
           docker push $IMAGE_NAME:$sanitized_ver
           echo "sanitized_ver=$sanitized_ver" >> $GITHUB_OUTPUT
-          docker images
+          docker image
         env:
           FULL_SEM_VERSION: ${{ steps.version_step.outputs.FullSemVer }}
           VERSION: ${{ steps.version_step.outputs.MajorMinorPatch }}
@@ -101,8 +101,8 @@ jobs:
         if: steps.cache-image.outputs.cache-hit != 'true'
         run: |
           mkdir -p docker-cache
-          docker save base:$VERSION > docker-cache/image.tar
-          docker images
+          docker save $IMAGE_NAME:$VERSION > docker-cache/image.tar
+          docker image
         env:
           VERSION: ${{ steps.version_step.outputs.MajorMinorPatch }}
         
