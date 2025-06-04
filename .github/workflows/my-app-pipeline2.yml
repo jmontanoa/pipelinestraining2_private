@@ -96,13 +96,13 @@ jobs:
           VERSION: ${{ steps.version_step.outputs.MajorMinorPatch }}
           CACHE_HIT: ${{ steps.cache-image.outputs.cache-hit }}
 
-      - name: Save image to cache
+      - name: Save base image to cache
         if: steps.cache-image.outputs.cache-hit != 'true'
         run: |
           mkdir -p docker-cache
-          docker save $IMAGE_NAME:$SANITIZED_VER > docker-cache/image.tar
+          docker save $IMAGE_NAME:$VERSION > docker-cache/image.tar
         env:
-          SANITIZED_VER: ${{ steps.build.outputs.sanitized_ver }}
+          VERSION: ${{ steps.version_step.outputs.MajorMinorPatch }}
         
   ## 🚀 3. Deploy to Dev Environment and run Integration tests
   deploy-dev:
