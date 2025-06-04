@@ -77,6 +77,7 @@ jobs:
         run: |
           echo "Using cache from key: ${{ steps.version_step.outputs.MajorMinorPatch }}"
           docker load -i docker-cache/image.tar
+          docker images
 
       - name: Build and push Docker image
         id: build
@@ -101,6 +102,7 @@ jobs:
         run: |
           mkdir -p docker-cache
           docker save base:$VERSION > docker-cache/image.tar
+          docker images
         env:
           VERSION: ${{ steps.version_step.outputs.MajorMinorPatch }}
         
