@@ -85,6 +85,8 @@ jobs:
             BASE_IMAGE="python:${PYTHON_VERSION}-alpine"
             docker build -t $IMAGE_NAME:$VERSION --build-arg BASE_IMAGE=$BASE_IMAGE --target image-setup .
             docker push $IMAGE_NAME:$VERSION
+            mkdir -p docker-cache
+            docker save $IMAGE_NAME:$VERSION > docker-cache/image.tar
           fi
           sanitized_ver="${FULL_SEM_VERSION//+/c}"
           BASE_IMAGE="$IMAGE_NAME:$VERSION"
@@ -96,14 +98,6 @@ jobs:
           FULL_SEM_VERSION: ${{ steps.version_step.outputs.FullSemVer }}
           VERSION: ${{ steps.version_step.outputs.MajorMinorPatch }}
           CACHE_HIT: ${{ steps.cache-image.outputs.cache-hit }}
-
-      - name: Save base image to cache
-        if: steps.cache-image.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p docker-cache
-          docker save $IMAGE_NAME:$VERSION > docker-cache/image.tar
-        env:
-          VERSION: ${{ steps.version_step.outputs.MajorMinorPatch }}
         
   ## 🚀 3. Deploy to Dev Environment and run Integration tests
   deploy-dev:
