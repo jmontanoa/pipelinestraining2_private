@@ -1,8 +1,16 @@
-version: "3.13"
+version: "3.9"
 services:
   web:
-    build: .
+    build: ..\..\.
     ports:
       - "5000:5000"
+    networks:
+      - dev-net
   redis:
     image: "redis:alpine"
+    networks:
+      - dev-net
+
+networks:
+  dev-net:
+    driver: bridge

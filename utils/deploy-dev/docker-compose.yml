@@ -3,15 +3,23 @@ version: '3.13'
 services:
   redis_dev:
     image: redis:alpine
+    networks:
+      - dev-net
 
   app_dev:
-    image: myregistry.com/myuser/myapp:${TAG:-latest}
+    image: restapp:${TAG:-1.0.0}
     ports:
       - "${APP_PORT:-5000}:5000"
+    networks:
+      - dev-net
     environment:
       - REDIS_HOST=redis_dev        # 👈 resolves automatically to the `redis_dev` container
-      - REDIS_PORT=6379
-      - API_BASE_URL=${API_BASE_URL} # 👈 allows running integration tests from `app_dev` container
+      - REDIS_PORT=${PORT_REDIS:-6379}
+      - API_BASE_URL=${API_BASE_URL:-http://localhost:5000} # 👈 allows running integration tests from `app_dev` container
+
+networks:
+  dev-net:
+    driver: bridge
 
 # - The app container can resolve redis as a hostname (Docker Compose DNS handles it)
 #
