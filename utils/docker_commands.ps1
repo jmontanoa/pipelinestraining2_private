@@ -12,7 +12,7 @@ docker exec -it restapp sh -c "python -m pytest test/unit -v"
 docker stop "redisService"
 docker rm  "redisService"
 docker run --name "redisService" -p "6379:6379" -d redis:alpine
-$redisIP = (docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' redisService)[1]
+$redisIP = (docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' redisService)
 docker stop "restapp"
 docker rm  "restapp"
 docker run --name "restapp" --add-host "redis:$redisIP" -p "5000:5000" -d restapp:1.0.0
